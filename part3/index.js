@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 
-const persons = [
+let persons = [
     { 
       "id": "1",
       "name": "Arto Hellas", 
@@ -46,6 +46,30 @@ app.get(`/api/persons/:id`, (request, response)=>{
       response.status(404).end();
     }
 })
+
+app.delete('/api/persons/:id', (request, response) => {
+  const id = request.params.id;
+  console.log(`Received DELETE request for id: ${id}`);
+  
+  // Check if id is valid
+  if (!id) {
+    console.error('No ID provided');
+    return response.status(400).json({ error: 'No ID provided' });
+  }
+
+  const initialLength = persons.length;
+  persons = persons.filter(person => person.id !== id);
+  
+  // Check if the person was found and deleted
+  if (persons.length === initialLength) {
+    console.error(`Person with id ${id} not found`);
+    return response.status(404).json({ error: 'Person not found' });
+  }
+
+  console.log(`Deleted person with id: ${id}`);
+  response.status(204).end();
+});
+
 
 const PORT = 3001;
 app.listen(PORT, ()=> {
